@@ -1,0 +1,387 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Atende Já</title>
+<meta name="description" content="Atendente virtual que responde e agenda clientes de salões e barbearias no WhatsApp e no Instagram, 24 horas por dia.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M22 8h56a14 14 0 0 1 14 14v40a14 14 0 0 1-14 14H40l-18 16v-16a14 14 0 0 1-14-14V22A14 14 0 0 1 22 8z' fill='%237A1F33'/%3E%3Cpath d='M31 43l13 13 26-27' fill='none' stroke='white' stroke-width='9' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700;800&display=swap">
+<style>
+/* Layout: herói em duas colunas (promessa à esquerda; conversa + agenda do dia se preenchendo à direita),
+   depois uma régua do dia, passos, recursos e contato, tudo alinhado à esquerda numa grade de 12 colunas. */
+:root{
+  --paper:#F6F4F2; --surface:#FFFFFF; --ink:#1C1718; --muted:#665D5F; --line:#E4DFDD;
+  --wine:#7A1F33; --wine-deep:#5E1526; --wine-tint:#F3E7EA; --brass:#B8852F;
+  --chat:#EEEAE8; --bubble-in:#FFFFFF; --bubble-out:#F1DDE2; --slot:#FBF9F8; --ok:#2C7A55;
+  --on-wine:#FFFFFF;
+  --font:"Schibsted Grotesk", "Helvetica Neue", Arial, system-ui, sans-serif;
+  --radius-l:22px; --radius-m:14px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#151213; --surface:#1E1A1B; --ink:#F3EFEE; --muted:#B0A6A8; --line:#332C2E;
+  --wine:#E58A9E; --wine-deep:#F2A9B8; --wine-tint:#2E1C21; --brass:#D9AE62;
+  --chat:#1A1617; --bubble-in:#272224; --bubble-out:#4A2530; --slot:#211C1E; --ok:#5CC293;
+  --on-wine:#1C1718; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#151213; --surface:#1E1A1B; --ink:#F3EFEE; --muted:#B0A6A8; --line:#332C2E;
+  --wine:#E58A9E; --wine-deep:#F2A9B8; --wine-tint:#2E1C21; --brass:#D9AE62;
+  --chat:#1A1617; --bubble-in:#272224; --bubble-out:#4A2530; --slot:#211C1E; --ok:#5CC293;
+  --on-wine:#1C1718; color-scheme:dark}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--paper);color:var(--ink);font-family:var(--font);font-size:17px;line-height:1.6;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1160px;margin:0 auto;padding-inline:24px}
+h1,h2,h3{line-height:1.08;text-wrap:balance;margin:0;font-weight:700}
+p{margin:0}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--brass);outline-offset:3px;border-radius:8px}
+.tnum{font-variant-numeric:tabular-nums}
+
+/* Header */
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:10;background:color-mix(in srgb,var(--paper) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:20px;padding-block:14px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;font-weight:800;font-size:21px;letter-spacing:-.025em}
+.brand svg{width:34px;height:34px;flex:none}
+.mark-bubble{fill:var(--wine)}
+.mark-check{stroke:var(--on-wine)}
+nav{display:flex;align-items:center;gap:28px}
+nav a.link{text-decoration:none;color:var(--muted);font-weight:500;font-size:15px}
+nav a.link:hover{color:var(--ink)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font:inherit;font-weight:600;font-size:16px;text-decoration:none;
+  background:var(--wine);color:var(--on-wine);padding:13px 22px;border-radius:999px;border:0;cursor:pointer;transition:background .2s}
+.btn:hover{background:var(--wine-deep)}
+.btn.quiet{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--line)}
+.btn.quiet:hover{box-shadow:inset 0 0 0 1.5px var(--ink);background:transparent}
+.btn.small{padding:10px 18px;font-size:15px}
+
+/* Hero */
+.hero{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:64px;align-items:center;padding-block:72px 88px}
+.kicker{display:inline-flex;align-items:center;gap:8px;font-weight:600;font-size:15px;color:var(--wine)}
+.kicker::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 4px color-mix(in srgb,var(--ok) 20%,transparent)}
+.hero h1{font-size:clamp(44px,6.4vw,80px);font-weight:800;letter-spacing:-.045em;margin-top:18px;line-height:.98}
+.lead{font-size:20px;color:var(--muted);max-width:30em;margin-top:24px;line-height:1.5}
+.ctas{display:flex;gap:12px;flex-wrap:wrap;margin-top:34px}
+.reassure{margin-top:22px;font-size:15px;color:var(--muted)}
+
+/* Hero composite: chat + agenda */
+.stage{position:relative;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:16px;align-items:start}
+.phone{background:var(--chat);border-radius:28px;padding:16px;box-shadow:0 1px 0 var(--line),0 24px 48px -28px color-mix(in srgb,var(--ink) 40%,transparent)}
+.chat-top{display:flex;align-items:center;gap:10px;padding:4px 4px 12px;border-bottom:1px solid var(--line);margin-bottom:12px}
+.avatar{width:34px;height:34px;border-radius:50%;background:var(--ink);color:var(--paper);display:grid;place-items:center;font-weight:700;font-size:14px}
+.chat-top b{display:block;font-size:14.5px;line-height:1.2}
+.chat-top small{color:var(--ok);font-size:12px}
+.msgs{display:flex;flex-direction:column;gap:7px}
+.m{max-width:88%;padding:8px 11px 5px;border-radius:14px;font-size:14px;line-height:1.38}
+.m.in{background:var(--bubble-in);align-self:flex-start;border-top-left-radius:4px}
+.m.out{background:var(--bubble-out);align-self:flex-end;border-top-right-radius:4px}
+.m time{display:block;text-align:right;font-size:10.5px;color:var(--muted);margin-top:2px;font-variant-numeric:tabular-nums}
+.opts{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+.opts span{font-size:12px;border:1px solid var(--wine);color:var(--wine);border-radius:999px;padding:2px 9px;font-weight:500}
+.opts span.on{background:var(--wine);color:var(--on-wine)}
+
+.agenda{background:var(--surface);border-radius:var(--radius-l);padding:18px 16px 14px;border:1px solid var(--line);margin-top:36px}
+.agenda-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px}
+.agenda-head b{font-size:15px}
+.agenda-head span{font-size:12.5px;color:var(--muted)}
+.slots{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.slots li{display:grid;grid-template-columns:44px minmax(0,1fr);gap:10px;align-items:center;font-size:13px}
+.slots .h{color:var(--muted);font-variant-numeric:tabular-nums}
+.slots .b{background:var(--slot);border:1px dashed var(--line);border-radius:10px;padding:7px 10px;color:var(--muted);min-height:34px}
+.slots .b.full{background:var(--wine-tint);border:1px solid transparent;color:var(--ink)}
+.slots .b small{display:block;color:var(--muted);font-size:11.5px;line-height:1.2}
+.slots .b.new{background:var(--wine);color:var(--on-wine);border-color:transparent}
+.slots .b.new small{color:color-mix(in srgb,var(--on-wine) 78%,transparent)}
+.agenda-foot{margin-top:12px;font-size:12px;color:var(--muted)}
+.sample{position:absolute;top:-28px;right:0;font-size:12px;color:var(--muted)}
+
+@media (prefers-reduced-motion:no-preference){
+  .slots .b.new{animation:book .7s cubic-bezier(.2,.8,.2,1) 1.4s both}
+  @keyframes book{
+    0%{background:var(--slot);color:var(--muted);transform:scale(.97)}
+    60%{transform:scale(1.03)}
+    100%{background:var(--wine);color:var(--on-wine);transform:none}}
+}
+
+/* Sections */
+section{padding-block:96px}
+section + section{border-top:1px solid var(--line)}
+.sec-head{max-width:40em}
+.sec-head h2{font-size:clamp(32px,4.2vw,50px);letter-spacing:-.035em}
+.sec-head p{color:var(--muted);margin-top:16px;font-size:19px;line-height:1.5}
+
+/* Day ruler */
+.ruler{margin-top:56px;position:relative}
+.ruler-line{position:relative;height:2px;background:var(--line);margin-bottom:28px}
+.ruler-line i{position:absolute;top:-5px;width:12px;height:12px;border-radius:50%;background:var(--paper);border:2px solid var(--wine)}
+.ticks{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-top:-22px;margin-bottom:30px;font-variant-numeric:tabular-nums}
+.moments{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:40px}
+.moment .t{font-size:40px;font-weight:700;letter-spacing:-.03em;color:var(--wine);font-variant-numeric:tabular-nums;line-height:1}
+.moment h3{font-size:21px;margin-top:14px}
+.moment p{color:var(--muted);margin-top:8px}
+
+/* Steps */
+.steps{list-style:none;padding:0;margin:56px 0 0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;counter-reset:s;border-top:2px solid var(--ink)}
+.steps li{counter-increment:s;padding:26px 28px 0 0}
+.steps li + li{padding-left:28px;border-left:1px solid var(--line)}
+.steps li::before{content:counter(s);font-size:15px;font-weight:700;color:var(--wine)}
+.steps h3{font-size:22px;margin-top:10px}
+.steps p{color:var(--muted);margin-top:10px}
+
+/* Features */
+.feature-grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:64px;align-items:start}
+.features{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 40px}
+.feat{padding-block:20px;border-top:1px solid var(--line)}
+.feat b{display:flex;gap:10px;align-items:baseline;font-size:17px}
+.feat b svg{flex:none;transform:translateY(2px);color:var(--wine)}
+.feat p{color:var(--muted);margin-top:6px;padding-left:26px;font-size:16px}
+
+/* Audience */
+.who{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;margin-top:48px}
+.who article{border-radius:var(--radius-l);padding:32px;min-width:0}
+.who .salon{background:var(--wine-tint)}
+.who .barber{background:var(--surface);border:1px solid var(--line)}
+.who h3{font-size:26px;letter-spacing:-.02em}
+.who p{margin-top:10px;color:var(--muted)}
+.who ul{margin:20px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:10px}
+.who li{display:flex;gap:10px;align-items:baseline}
+.who li::before{content:"";flex:none;width:6px;height:6px;border-radius:50%;background:var(--brass);transform:translateY(-2px)}
+
+/* FAQ */
+.faq{margin-top:40px;max-width:820px}
+details{border-top:1px solid var(--line)}
+details:last-child{border-bottom:1px solid var(--line)}
+summary{list-style:none;cursor:pointer;padding-block:22px;font-weight:600;font-size:19px;display:flex;justify-content:space-between;gap:20px}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";font-weight:400;font-size:26px;line-height:1;color:var(--wine);transition:transform .2s}
+details[open] summary::after{transform:rotate(45deg)}
+details p{color:var(--muted);padding-bottom:22px;max-width:40em}
+
+/* Contact */
+.contact{background:var(--ink);color:var(--paper);border-radius:28px;padding:56px;display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,.8fr);gap:48px;align-items:center}
+.contact h2{font-size:clamp(30px,4vw,46px);letter-spacing:-.035em}
+.contact p{color:color-mix(in srgb,var(--paper) 72%,transparent);margin-top:16px;font-size:18px}
+.contact-card{background:color-mix(in srgb,var(--paper) 8%,transparent);border-radius:var(--radius-m);padding:26px}
+.contact-card .lbl{font-size:13px;color:color-mix(in srgb,var(--paper) 62%,transparent)}
+.contact-card .val{font-size:20px;font-weight:700;margin:4px 0 16px;overflow-wrap:anywhere}
+.contact .btn{background:var(--paper);color:var(--ink)}
+.contact .btn:hover{background:color-mix(in srgb,var(--paper) 86%,var(--wine))}
+
+footer{padding-block:40px;color:var(--muted);font-size:14px}
+.foot{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:center}
+.foot .brand{font-size:17px}
+.foot .brand svg{width:26px;height:26px}
+
+@media (max-width:960px){
+  .hero{grid-template-columns:1fr;gap:56px;padding-block:48px 64px}
+  .feature-grid{grid-template-columns:1fr;gap:32px}
+  .contact{grid-template-columns:1fr;padding:36px 28px}
+}
+@media (max-width:720px){
+  nav a.link{display:none}
+  .stage{grid-template-columns:1fr}
+  .agenda{margin-top:0}
+  .moments,.features,.who{grid-template-columns:1fr}
+  .moments{gap:32px}
+  .ticks,.ruler-line{display:none}
+  .steps{grid-template-columns:1fr}
+  .steps li,.steps li + li{padding:22px 0;border-left:0;border-bottom:1px solid var(--line)}
+  section{padding-block:64px}
+  .who article{padding:26px}
+}
+</style>
+<meta property="og:title" content="Atende Já">
+<meta property="og:description" content="Atendente virtual que responde e agenda clientes de salões e barbearias no WhatsApp e no Instagram.">
+<meta property="og:image" content="/assets/logo-atende-ja.png">
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="mark" viewBox="0 0 100 100">
+    <path class="mark-bubble" d="M22 8h56a14 14 0 0 1 14 14v40a14 14 0 0 1-14 14H40l-18 16v-16a14 14 0 0 1-14-14V22A14 14 0 0 1 22 8z"/>
+    <path class="mark-check" d="M31 43l13 13 26-27" fill="none" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="84" cy="14" r="9" fill="var(--brass)" stroke="var(--paper)" stroke-width="5"/>
+  </symbol>
+  <symbol id="check" viewBox="0 0 16 16"><path d="M3 8.5l3.2 3.2L13 4.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+</svg>
+
+<header>
+  <div class="wrap bar">
+    <a class="brand" href="#inicio" aria-label="Atende Já, início"><svg><use href="#mark"/></svg>atende já</a>
+    <nav aria-label="Principal">
+      <a class="link" href="#como-funciona">Como funciona</a>
+      <a class="link" href="#recursos">Recursos</a>
+      <a class="link" href="#duvidas">Dúvidas</a>
+      <a class="btn small" href="#contato">Pedir demonstração</a>
+    </nav>
+  </div>
+</header>
+
+<main id="inicio">
+  <div class="wrap hero">
+    <div>
+      <span class="kicker">Atendimento automático para salões e barbearias</span>
+      <h1>Responde na hora. Agenda sozinha.</h1>
+      <p class="lead">Uma atendente virtual no seu WhatsApp e Instagram que tira dúvidas, passa preços e marca horário a qualquer hora. Você continua com as mãos no trabalho.</p>
+      <div class="ctas">
+        <a class="btn" href="#contato">Pedir demonstração gratuita</a>
+        <a class="btn quiet" href="#como-funciona">Ver como funciona</a>
+      </div>
+      <p class="reassure">Sem instalar nada. A gente configura tudo para você.</p>
+    </div>
+
+    <div class="stage">
+      <span class="sample">Exemplo de atendimento</span>
+      <div class="phone" role="img" aria-label="Conversa de exemplo: cliente pede horário às 23h47 e a atendente agenda corte e barba para quarta às 14h30 com o Diego">
+        <div class="chat-top">
+          <div class="avatar" aria-hidden="true">N</div>
+          <div><b>Barbearia Navalha</b><small>online agora</small></div>
+        </div>
+        <div class="msgs">
+          <div class="m in">Boa noite! Tem horário pra corte e barba amanhã?<time>23:47</time></div>
+          <div class="m out">Tem sim! Corte + barba fica R$ 70. Com qual barbeiro?
+            <div class="opts"><span>Rafa</span><span class="on">Diego</span><span>Léo</span></div><time>23:47</time></div>
+          <div class="m out">O Diego tem estes horários na quarta:
+            <div class="opts"><span>10:00</span><span class="on">14:30</span><span>18:00</span></div><time>23:47</time></div>
+          <div class="m in">14h30 fechou<time>23:48</time></div>
+          <div class="m out">Confirmado! Quarta, 14h30, com o Diego. Te mando um lembrete na terça.<time>23:48</time></div>
+        </div>
+      </div>
+
+      <div class="agenda" aria-label="Agenda do Diego na quarta-feira">
+        <div class="agenda-head"><b>Diego</b><span>Quarta-feira</span></div>
+        <ul class="slots">
+          <li><span class="h">09:00</span><span class="b full">Corte<small>Marcos</small></span></li>
+          <li><span class="h">10:00</span><span class="b">Livre</span></li>
+          <li><span class="h">11:00</span><span class="b full">Barba<small>Felipe</small></span></li>
+          <li><span class="h">13:30</span><span class="b full">Degradê<small>João</small></span></li>
+          <li><span class="h">14:30</span><span class="b new">Corte + barba<small>Agendado às 23:48</small></span></li>
+          <li><span class="h">16:00</span><span class="b full">Corte<small>Pedro</small></span></li>
+          <li><span class="h">18:00</span><span class="b">Livre</span></li>
+        </ul>
+        <p class="agenda-foot">Nenhuma mensagem ficou sem resposta.</p>
+      </div>
+    </div>
+  </div>
+
+  <section>
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>Cliente sem resposta marca com o concorrente</h2>
+        <p>Quem trabalha com beleza passa o dia com as mãos ocupadas. O celular não para, e cada mensagem esquecida é um horário a menos na agenda.</p>
+      </div>
+      <div class="ruler" aria-hidden="true">
+        <div class="ticks"><span>08h</span><span>12h</span><span>16h</span><span>20h</span><span>00h</span></div>
+        <div class="ruler-line"><i style="left:0%"></i><i style="left:37.5%"></i><i style="left:96%"></i></div>
+      </div>
+      <div class="moments">
+        <div class="moment"><div class="t">08:20</div><h3>A cadeira vazia</h3><p>O cliente marcou, esqueceu e não apareceu. O horário foi perdido.</p></div>
+        <div class="moment"><div class="t">14:00</div><h3>No meio do atendimento</h3><p>A cliente pergunta o preço da escova, e a resposta só sai duas horas depois.</p></div>
+        <div class="moment"><div class="t">23:30</div><h3>Depois do expediente</h3><p>É quando muita gente lembra de marcar, e não tem ninguém para responder.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="como-funciona">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>Pronto em poucos dias, sem mexer em nada técnico</h2>
+        <p>Você conta como o seu negócio funciona. A gente monta, testa e acompanha.</p>
+      </div>
+      <ol class="steps">
+        <li><h3>Uma conversa de 20 minutos</h3><p>Você passa os serviços, preços, horários e as dúvidas que mais recebe.</p></li>
+        <li><h3>A gente configura tudo</h3><p>A atendente aprende o jeito de falar do seu negócio e passa a usar a sua agenda.</p></li>
+        <li><h3>Ajustes todo mês</h3><p>Atualizamos preços, promoções e respostas conforme o seu negócio muda.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <section id="recursos">
+    <div class="wrap feature-grid">
+      <div class="sec-head">
+        <h2>Tudo o que uma boa recepcionista faz</h2>
+        <p>Sem folga, sem pressa e sem deixar ninguém esperando.</p>
+      </div>
+      <div class="features">
+        <div class="feat"><b><svg width="16" height="16"><use href="#check"/></svg>Resposta imediata</b><p>Preços, serviços, endereço e formas de pagamento, a qualquer hora.</p></div>
+        <div class="feat"><b><svg width="16" height="16"><use href="#check"/></svg>Agendamento automático</b><p>A cliente escolhe serviço, profissional e horário pela conversa.</p></div>
+        <div class="feat"><b><svg width="16" height="16"><use href="#check"/></svg>Lembrete um dia antes</b><p>Confirmação de presença para reduzir faltas e horários vazios.</p></div>
+        <div class="feat"><b><svg width="16" height="16"><use href="#check"/></svg>Volta de clientes sumidos</b><p>Mensagem para quem não aparece há 30 ou 60 dias.</p></div>
+        <div class="feat"><b><svg width="16" height="16"><use href="#check"/></svg>Passa para você quando precisa</b><p>Orçamentos de química e casos especiais chegam direto para a equipe.</p></div>
+        <div class="feat"><b><svg width="16" height="16"><use href="#check"/></svg>WhatsApp e Instagram</b><p>Funciona onde seus clientes já falam com você.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="sec-head"><h2>Feito para quem vive de agenda</h2></div>
+      <div class="who">
+        <article class="salon">
+          <h3>Salões de beleza</h3>
+          <p>Cabelo, unhas, sobrancelha e cílios, com várias profissionais.</p>
+          <ul><li>Preços organizados por categoria de serviço</li><li>Pedido de foto para orçamento de progressiva e mechas</li><li>Agenda separada para cada profissional</li></ul>
+        </article>
+        <article class="barber">
+          <h3>Barbearias</h3>
+          <p>Corte, barba e tudo que sai da cadeira, no ritmo do dia.</p>
+          <ul><li>O cliente escolhe o barbeiro preferido</li><li>Confirmação de presença no dia anterior</li><li>Pedidos de encaixe avisados direto ao dono</li></ul>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section id="duvidas">
+    <div class="wrap">
+      <div class="sec-head"><h2>Dúvidas comuns</h2></div>
+      <div class="faq">
+        <details><summary>Meus clientes vão perceber que é uma atendente virtual?</summary><p>A atendente fala com o tom do seu negócio e responde na hora. Quando a conversa pede um toque pessoal, ela passa para você ou para a sua equipe.</p></details>
+        <details><summary>Preciso trocar meu número de WhatsApp?</summary><p>Recomendamos um número dedicado ao atendimento do negócio. A gente ajuda em toda a configuração, e o Instagram funciona com o perfil que você já tem.</p></details>
+        <details><summary>Funciona com a agenda que eu já uso?</summary><p>Trabalhamos com as agendas online mais comuns. Se você ainda usa caderno, a gente monta uma agenda online junto com a atendente.</p></details>
+        <details><summary>E se eu quiser mudar preços ou serviços?</summary><p>É só avisar. Os ajustes mensais estão incluídos no serviço.</p></details>
+      </div>
+    </div>
+  </section>
+
+  <section id="contato">
+    <div class="wrap">
+      <div class="contact">
+        <div>
+          <h2>Veja a atendente funcionando no seu negócio</h2>
+          <p>Montamos uma demonstração com o nome e os serviços do seu salão ou barbearia, sem compromisso.</p>
+        </div>
+        <div class="contact-card">
+          <div class="lbl">E-mail</div>
+          <div class="val" id="email">contato@useatendeja.com.br</div>
+          <button class="btn small" id="copy-email" type="button">Copiar e-mail</button>
+          <div class="lbl" style="margin-top:22px">Instagram</div>
+          <div class="val" style="margin-bottom:0">@atendeja</div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap foot">
+    <a class="brand" href="#inicio"><svg><use href="#mark"/></svg>atende já</a>
+    <span>Atendimento e agendamento com IA para salões e barbearias</span>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var b=document.getElementById('copy-email'), el=document.getElementById('email');
+  function sel(){var r=document.createRange();r.selectNodeContents(el);var s=getSelection();s.removeAllRanges();s.addRange(r)}
+  b.addEventListener('click',function(){
+    var t=el.textContent;
+    function done(){b.textContent='E-mail copiado';setTimeout(function(){b.textContent='Copiar e-mail'},2000)}
+    try{navigator.clipboard.writeText(t).then(done,sel)}catch(e){sel()}
+  });
+})();
+</script>
+</body>
+</html>

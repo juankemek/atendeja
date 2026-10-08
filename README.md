@@ -1,6 +1,6 @@
 # Atende Já
 
-Site institucional da Atende Já, atendente virtual que responde e agenda clientes de salões de beleza e barbearias no WhatsApp e no Instagram.
+Site institucional da Atende Já, atendente virtual que responde clientes, agenda horários e qualifica contatos de pequenos negócios no WhatsApp e no Instagram.
 
 ## Estrutura
 
